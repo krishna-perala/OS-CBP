@@ -1,0 +1,242 @@
+#include <iostream>
+#include <string>
+#include <vector>
+using namespace std;
+// Define enum for type of service
+enum class ServiceType {
+EmergencyCare,
+ScheduledAppointments,
+Diagnostics,
+Pharmacy,
+DineIn,
+Takeaway,
+Delivery
+};
+// Define enum for customer priority
+enum class CustomerPriority {
+Critical,
+High,
+Medium,
+Low,
+VIPRegular,
+ReservationHolder,
+WalkIn,
+OnlineOrder
+};
+struct Process {
+int process_id;
+ServiceType service_type; // Type of service for the process
+CustomerPriority priority; // Customer priority for the process
+int sorting_value; // Value used for sorting
+};
+// Function to calculate sorting value based on service type and priority
+int calculateSortingValue(ServiceType serviceType, CustomerPriority priority) {
+// Assign scores based on service type
+int serviceScore = 0;
+switch (serviceType) {
+case ServiceType::EmergencyCare:
+serviceScore = 200;
+break;
+case ServiceType::ScheduledAppointments:
+serviceScore = 100;
+break;
+case ServiceType::Diagnostics:
+serviceScore = 80;
+break;
+case ServiceType::Pharmacy:
+serviceScore = 60;
+break;
+case ServiceType::DineIn:
+serviceScore = 90;
+break;
+case ServiceType::Takeaway:
+serviceScore = 70;
+break;
+case ServiceType::Delivery:
+serviceScore = 50;
+break;
+}
+// Assign scores based on customer priority
+int priorityScore = 0;
+switch (priority) {
+case CustomerPriority::Critical:
+priorityScore = 150;
+break;
+case CustomerPriority::High:
+priorityScore = 100;
+break;
+case CustomerPriority::Medium:
+priorityScore = 50;
+break;
+case CustomerPriority::Low:
+priorityScore = 25;
+break;
+case CustomerPriority::VIPRegular:
+priorityScore = 120;
+break;
+case CustomerPriority::ReservationHolder:
+priorityScore = 90;
+break;
+case CustomerPriority::WalkIn:
+priorityScore = 60;
+break;
+case CustomerPriority::OnlineOrder:
+priorityScore = 30;
+break;
+}
+// Combine service score and priority score with weights
+// Here, giving more weight to service type (e.g., 0.7) than to priority (e.g., 0.3)
+double serviceWeight = 0.7;
+double priorityWeight = 0.3;
+int sortingValue = static_cast<int>(serviceScore * serviceWeight + priorityScore * priorityWeight);
+return sortingValue;
+}
+// Merge function for merge sort (descending order)
+void merge(vector<Process> &processes, int left, int mid, int right) {
+int n1 = mid - left + 1;
+int n2 = right - mid;
+vector<Process> L(n1);
+vector<Process> R(n2);
+for (int i = 0; i < n1; i++)
+L[i] = processes[left + i];
+for (int j = 0; j < n2; j++)
+R[j] = processes[mid + 1 + j];
+int i = 0, j = 0, k = left;
+while (i < n1 && j < n2) {
+// Change comparison for descending order
+if (L[i].sorting_value > R[j].sorting_value ||
+(L[i].sorting_value == R[j].sorting_value && L[i].process_id < R[j].process_id)) {
+processes[k] = L[i];
+i++;
+} else {
+processes[k] = R[j];
+j++;
+}
+k++;
+}
+while (i < n1) {
+processes[k] = L[i];
+i++;
+k++;
+}
+while (j < n2) {
+processes[k] = R[j];
+j++;
+k++;
+}
+}
+// Merge sort function
+void mergeSort(vector<Process> &processes, int left, int right) {
+if (left >= right) {
+return;
+}
+int mid = left + (right - left) / 2;
+mergeSort(processes, left, mid);
+mergeSort(processes, mid + 1, right);
+merge(processes, left, mid, right);
+}
+void displayOptions(string sysName) {
+if (sysName == "hospital") {
+cout << "Types of Services:\n";
+cout << "1. Emergency Care\n";
+cout << "2. Scheduled Appointments\n";
+cout << "3. Diagnostics\n";
+cout << "4. Pharmacy Services\n";
+cout << "Customer Priorities:\n";
+cout << "1. Critical\n";
+cout << "2. High\n";
+cout << "3. Medium\n";
+cout << "4. Low\n";
+} else if (sysName == "restaurant") {
+cout << "Types of Services:\n";
+cout << "1. Dine-In\n";
+cout << "2. Takeaway\n";
+cout << "3. Delivery\n";
+cout << "Customer Priorities:\n";
+cout << "1. VIP/Regular Customers\n";
+cout << "2. Reservation Holders\n";
+cout << "3. Walk-Ins\n";
+cout << "4. Online Orders\n";
+}
+}
+void customerQueueManagement(string sysName, string custName) {
+int n;
+cout << "Enter the number of processes: ";
+cin >> n;
+vector<Process> processes(n);
+// Display options based on system type
+displayOptions(sysName);
+// Input process details for
+(int i = 0; i < n; i++) {
+cout << "Process-" << i + 1 << ":\n"; processes[i].process_id
+= i + 1;
+int serviceChoice, priorityChoice;
+cout << "Enter type of service (1-"; if
+(sysName == "hospital")
+cout << "4): ";
+else if (sysName == "restaurant") cout
+<< "3): ";
+cin >> serviceChoice;
+// Set service type based on user input
+switch (serviceChoice) {
+case 1:
+processes[i].service_type = ServiceType::EmergencyCare;
+break;
+case 2:
+processes[i].service_type = ServiceType::ScheduledAppointments; break;
+case 3:
+processes[i].service_type = ServiceType::Diagnostics;
+break;
+case 4:
+if (sysName == "hospital")
+processes[i].service_type = ServiceType::Pharmacy;
+else if (sysName == "restaurant")
+processes[i].service_type = ServiceType::Delivery;
+break;
+default:
+processes[i].service_type = ServiceType::EmergencyCare; // Default to EmergencyCare
+break;
+}
+cout << "Enter customer priority (1-4): ";
+cin >> priorityChoice;
+// Set customer priority based on user input
+switch (priorityChoice) {
+case 1:
+processes[i].priority = CustomerPriority::Critical;
+break;
+case 2:
+processes[i].priority = CustomerPriority::High;
+break;
+case 3:
+processes[i].priority = CustomerPriority::Medium;
+break;
+case 4:
+processes[i].priority = CustomerPriority::Low;
+break;
+default:
+processes[i].priority = CustomerPriority::Low; // Default to Low priority
+break;
+}
+// Calculate sorting value based on service type and priority
+processes[i].sorting_value = calculateSortingValue(processes[i].service_type, processes[i].priority);
+}
+// Sort processes using merge sort based on sorting_value and process_id
+mergeSort(processes, 0, n - 1);
+cout << "\t" << sysName << " Queue Management\t\n";
+cout << "Sequence of execution : ";
+for (int i = 0; i < n; i++) {
+if (i != n - 1)
+cout << custName << "-" << processes[i].process_id << " --> ";
+else
+cout << custName << "-" << processes[i].process_id;
+}
+}
+int main() {
+string sysName, custName;
+cout << "Enter System Name (hospital/restaurant):\n";
+cin >> sysName;
+cout << "Enter customer name\n";
+cin >> custName;
+customerQueueManagement(sysName, custName);
+return 0;
+}
